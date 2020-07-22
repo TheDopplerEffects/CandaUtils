@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bf791122-3c74-4494-b495-24a096d58756</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CandaUtils.py</StartupFile>
+    <StartupFile>CandaUtils\CandaUtils.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,10 +22,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CandaUtils.py" />
-    <Compile Include="test_1.py">
+    <Compile Include="CandaUtils\CandaUtils.py" />
+    <Compile Include="test\test_1.py">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CandaUtils\" />
+    <Folder Include="test\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
