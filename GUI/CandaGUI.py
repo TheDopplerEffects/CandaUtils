@@ -1,6 +1,7 @@
 from appJar import gui
 from random import randint
-
+from time import sleep
+from random import randint
 
 class output(object):
     def __init__(self, window, name, canid = 0, fmt = '0|0:64'):
@@ -34,6 +35,14 @@ def new():
     mid = p.getEntry('mid')
     fmt = p.getEntry('fmt')
     outputs.append(output(p,name, mid, fmt))
+    
+def simulater():
+    while 1:
+        sleep(1)
+        for i in outputs:
+            num = randint(0,0xffffffff)
+            p.queueFunction(i.set ,num)
+        
 
 p = gui("values")
 
@@ -72,6 +81,7 @@ p.addButton("Make Value", new, 0,3)
 
 p.stopFrame()
 
+p.thread(simulater)
 
 p.go()
 
