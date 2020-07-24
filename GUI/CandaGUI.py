@@ -9,7 +9,10 @@ class output(object):
         self.mid = canid
         self.fmt = fmt
         
-        row = window.gr()
+
+        self.window.openScrollPane('left')
+        
+        row = self.window.gr()
         
         self.window.addEntry('e' + self.name,row,0,0,1)
         self.window.setEntryWidth('e' + self.name, 8)
@@ -21,42 +24,55 @@ class output(object):
         
         self.window.addLabel('l' + self.name, "0000000000",row,2,0,1)
         self.window.setLabelBg('l' + self.name, "white")
+        self.window.stopScrollPane()
         
     def set(self, value):
         self.window.setLabel('l' + self.name, f'{value:08x}')
 
-def calce():
-    for i in range(8):
-        for x in range(8):
-            p.setLabel(str(i)+str(x), randint(0,1))
-
+def new():
+    name = p.getEntry('name')
+    mid = p.getEntry('mid')
+    fmt = p.getEntry('fmt')
+    outputs.append(output(p,name, mid, fmt))
 
 p = gui("values")
 
 p.setSticky("nesw")
 p.setStretch("row")
 
-p.startScrollPane("LEFT", row=0, column=0, disabled="horizontal")
+
+p.startScrollPane("left", row=0, column=0, disabled="horizontal")
+
 p.setSticky("enw")
 p.setBg("white")
 p.setStretch("none")
 
-setLen = 0
-newSet(p,i)
-setLen = i
-
+p.addLabel('FM', "Format",0,0)
+p.addLabel('ME', "Meter",0,1)
+p.addLabel('OT', "Value",0,2)
 p.stopScrollPane()
 
 p.startFrame("R", row=0, column=1)
+
 p.setSticky("nesw")
 p.setStretch("both")
-
 for i in range(8):
     for x in range(8):
         p.addLabel(str(i)+str(x), randint(0,1), i,x,1,1)
+        
 p.stopFrame()
 
-p.addButton("Calc", calce)
+outputs = []
+p.startFrame('bottom', row=1, colspan=2)
+
+p.addLabelEntry("name", 0,0)
+p.addLabelEntry("mid", 0,1)
+p.addLabelEntry("fmt", 0,2)
+p.addButton("Make Value", new, 0,3)
+
+p.stopFrame()
+
+
 p.go()
 
 
