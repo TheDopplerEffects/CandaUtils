@@ -2,16 +2,28 @@ from appJar import gui
 from random import randint
 
 
-def newSet(frame,num):
-    row = frame.gr()
-    frame.addEntry('e' + str(num),row,0,0,1)
-    frame.addMeter('m' + str(num),row,1,0,1)
-    frame.addLabel('l' + str(num), "0000000000",row,2,0,1)
-    frame.setLabelBg('l' + str(num), "white")
-    frame.setEntryWidth('e' + str(num), 8)
-    frame.setMeter('m' + str(num), 50)
-    frame.setMeterWidth('m' + str(num), 200)
-    frame.setEntry('e' + str(num),"0|0:64")
+class output(object):
+    def __init__(self, window, name, canid = 0, fmt = '0|0:64'):
+        self.window = window
+        self.name = name
+        self.mid = canid
+        self.fmt = fmt
+        
+        row = window.gr()
+        
+        self.window.addEntry('e' + self.name,row,0,0,1)
+        self.window.setEntryWidth('e' + self.name, 8)
+        self.window.setEntry('e' + self.name,fmt)
+        
+        self.window.addMeter('m' + self.name,row,1,0,1)
+        self.window.setMeter('m' + self.name, 50)
+        self.window.setMeterWidth('m' + self.name, 200)
+        
+        self.window.addLabel('l' + self.name, "0000000000",row,2,0,1)
+        self.window.setLabelBg('l' + self.name, "white")
+        
+    def set(self, value):
+        self.window.setLabel('l' + self.name, f'{value:08x}')
 
 def calce():
     for i in range(8):
@@ -26,25 +38,25 @@ p.setStretch("row")
 
 p.startScrollPane("LEFT", row=0, column=0, disabled="horizontal")
 p.setSticky("enw")
-p.setBg("black")
+p.setBg("white")
 p.setStretch("none")
 
 setLen = 0
-for i in range(15):
-    newSet(p,i)
-    setLen = i
+newSet(p,i)
+setLen = i
 
 p.stopScrollPane()
 
 p.startFrame("R", row=0, column=1)
 p.setSticky("nesw")
 p.setStretch("both")
+
 for i in range(8):
     for x in range(8):
         p.addLabel(str(i)+str(x), randint(0,1), i,x,1,1)
 p.stopFrame()
 
-p.addButton("Calc", calce
+p.addButton("Calc", calce)
 p.go()
 
 
