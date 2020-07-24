@@ -4,7 +4,7 @@ from time import sleep
 from random import randint
 
 class output(object):
-    def __init__(self, window, name, canid = 0, fmt = '0|0:64'):
+    def __init__(self, window: gui, name, canid = 0, fmt = '0|0:64'):
         self.window = window
         self.name = name
         self.mid = canid
@@ -23,13 +23,18 @@ class output(object):
         self.window.setMeter('m' + self.name, 50)
         self.window.setMeterWidth('m' + self.name, 200)
         
-        self.window.addLabel('l' + self.name, "0000000000",row,2,0,1)
+        self.window.addLabel('l' + self.name, "0000000000000000",row,2,0,1)
         self.window.setLabelBg('l' + self.name, "white")
+        self.window.setLabelAlign('l' + self.name, "right")
+        self.window.setLabelWidth('l' + self.name, 16)
+        self.window.getLabelWidget('l' + self.name).config(font=("Courier New", 13))        
+        #Courier New
         self.window.stopScrollPane()
         
     def set(self, value):
-        self.window.setLabel('l' + self.name, f'{value:08x}')
-
+        self.window.setLabel('l' + self.name, f'{value:016x}')
+        self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
+        
 def new():
     name = p.getEntry('name')
     mid = p.getEntry('mid')
@@ -40,7 +45,7 @@ def simulater():
     while 1:
         sleep(1)
         for i in outputs:
-            num = randint(0,0xffffffff)
+            num = (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff)
             p.queueFunction(i.set ,num)
         
 
@@ -77,6 +82,10 @@ p.startFrame('bottom', row=1, colspan=2)
 p.addLabelEntry("name", 0,0)
 p.addLabelEntry("mid", 0,1)
 p.addLabelEntry("fmt", 0,2)
+p.setEntry("name", 'Test')
+p.setEntry("mid", '0e1e')
+p.setEntry("fmt", "0:64")
+new()
 p.addButton("Make Value", new, 0,3)
 
 p.stopFrame()
