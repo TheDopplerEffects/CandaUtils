@@ -21,6 +21,7 @@ class output(object):
         
         self.window.addMeter('m' + self.name,row,1,0,1)
         self.window.setMeter('m' + self.name, 50)
+        self.window.setMeterFill('m' + self.name, "red")
         self.window.setMeterWidth('m' + self.name, 200)
         
         self.window.addLabel('l' + self.name, "0000000000000000",row,2,0,1)
@@ -33,7 +34,7 @@ class output(object):
         
     def set(self, value):
         self.window.setLabel('l' + self.name, f'{value:016x}')
-        self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
+        #self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
         
 def new():
     name = p.getEntry('name')

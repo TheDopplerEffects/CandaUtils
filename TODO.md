@@ -20,6 +20,8 @@
  - malti bus support?
  - bit/nyb/byte/2byte delta indication (with sensativity)
  - frame frequency counter
+   - Issues
+    - Meters update slowley and cause preformance isuess
 
 ##### DataInfo class
  - complete testing
