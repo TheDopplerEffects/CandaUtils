@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bf791122-3c74-4494-b495-24a096d58756</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CandaUtils\CandaUtils.py</StartupFile>
+    <StartupFile>CandaUtils\__init__.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -12,6 +12,7 @@
     <Name>CandaUtils</Name>
     <RootNamespace>CandaUtils</RootNamespace>
     <TestFramework>Pytest</TestFramework>
+    <InterpreterId>Global|PythonCore|3.7</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,14 +23,21 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CandaUtils\CandaUtils.py" />
-    <Compile Include="test\test_1.py">
+    <Compile Include="CandaUtils\__init__.py" />
+    <Compile Include="CandaGUI.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test\DataInfo_test.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CandaUtils\" />
     <Folder Include="test\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.7" />
+    <InterpreterReference Include="Global|PythonCore|3.8" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
