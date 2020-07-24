@@ -40,13 +40,22 @@ def new():
     mid = p.getEntry('mid')
     fmt = p.getEntry('fmt')
     outputs.append(output(p,name, mid, fmt))
-    
+
+
+def distrobuteData(dataBuffer):
+    for i in dataBuffer:
+        for d in outputs: #Data Distrobution betwean the output lines
+            d.set(i)       
+        
 def simulater():
     while 1:
         sleep(1)
-        for i in outputs:
-            num = (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff)
-            p.queueFunction(i.set ,num)
+        buffer = []
+        buffer.append((randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff)) #get data
+        
+        p.queueFunction(distrobuteData(buffer))
+        
+
         
 
 p = gui("values")
