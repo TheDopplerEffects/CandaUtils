@@ -40,7 +40,7 @@ class output(object):
         self.window.stopScrollPane()
         
     def set(self, value):
-        self.window.setLabel('l' + self.name, f'{value}')  #remove formmatting remporarly
+        self.window.setLabel('l' + self.name, f'{formatBits(value, self.fmt):x}')  #remove formmatting remporarly
         #self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
         
 def new():
@@ -54,12 +54,12 @@ def distrobuteData(dataBuffer):
     for i in dataBuffer:
         for d in outputs: #Data Distrobution betwean the output lines
             if d.mid == i[0]:
-                d.set(i[1])       
+                d.set(i[1])
         
 def simulater():
     ids = [0x120, 0x0e10]
     while 1:
-        sleep(1)
+        sleep(0.25)
         buffer = []
         buffer.append((ids[randint(0, 1)], (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff))) #get data
         
