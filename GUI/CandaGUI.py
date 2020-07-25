@@ -1,8 +1,10 @@
 from appJar import gui
 from random import randint
-from time import sleep
+import time as t
 from random import randint
 from panda import Panda
+
+UPDATE_FREQUINCY = 10 #hz
 
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
@@ -52,14 +54,14 @@ def new():
 
 
 def distrobuteData(dataBuffer):
-    for i in dataBuffer:
+    for MID, _, data, bus in dataBuffer:
         for d in outputs: #Data Distrobution betwean the output lines
-            if d.mid == i[0]:
-                d.set(i[1])
+            if d.mid == MID:
+                d.set(data)
                 
 def connectPanda():
     p.showSubWindow("con")
-    sleep(2)
+    t.sleep(2)
     try:
         dev = Panda()
     except:
@@ -70,7 +72,7 @@ def connectPanda():
             dev = Panda("WIFI")
         except:
             p.setLabel("ConnectStatus", "Connection timed out!\nClosing in 3 seconds")
-            sleep(3)
+            t.sleep(3)
             p.thread(simulater) 
             #app.stop()
             #sys.exit(0)
@@ -85,11 +87,20 @@ def connectPanda():
 def simulater():
     ids = [0x120, 0x0e10]
     while 1:
-        sleep(0.25)
+        start = t.time()
         buffer = []
-        buffer.append((ids[randint(0, 1)], (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff))) #get data
-        
+        for o in range(1000):
+            buffer.append((ids[randint(0, 1)], None, (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff), 8)) #get data
         p.queueFunction(distrobuteData(buffer))
+        t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))     
+        
+def runCan():
+    while 1:
+
+        start = t.time()        
+        can_recv = p.can_recv()
+        p.queueFunction(distrobuteData(buffer))
+        t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))          
         
 
         
