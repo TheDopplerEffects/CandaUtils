@@ -2,6 +2,7 @@ from appJar import gui
 from random import randint
 from time import sleep
 from random import randint
+from panda import Panda
 
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
@@ -55,6 +56,31 @@ def distrobuteData(dataBuffer):
         for d in outputs: #Data Distrobution betwean the output lines
             if d.mid == i[0]:
                 d.set(i[1])
+                
+def connectPanda():
+    p.showSubWindow("con")
+    sleep(2)
+    try:
+        dev = Panda()
+    except:
+        p.setLabel("ConnectStatus", "FAILED! Trying to connect to panda over Wifi")      
+        try:
+            print('Trying panda')
+            assert False  #!!!!!!!!!!!!!panda wifi donsn't timout
+            dev = Panda("WIFI")
+        except:
+            p.setLabel("ConnectStatus", "Connection timed out!\nClosing in 3 seconds")
+            sleep(3)
+            p.thread(simulater) 
+            #app.stop()
+            #sys.exit(0)
+    p.destroySubWindow('con')
+                   
+    
+    
+            
+            
+        
         
 def simulater():
     ids = [0x120, 0x0e10]
@@ -108,8 +134,13 @@ p.addButton("Make Value", new, 0,3)
 
 p.stopFrame()
 
-p.thread(simulater)
+p.startSubWindow("con")
+p.addLabel("ConnectStatus", "Connecting: USB") 
+p.stopSubWindow()   
 
+#p.thread(simulater)
+
+p.setStartFunction(connectPanda)
 p.go()
 
 
