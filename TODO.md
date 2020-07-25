@@ -28,3 +28,5 @@
  - complete testing
  - prep to be a good parent
  - decide how to handle fractional (via DataInfo.maltiplyer) numbers and text output in relation to bin and hex values
+ - (number >> pos) & ((1<<size)-1) a lot faster algorith so bit extractions
+
