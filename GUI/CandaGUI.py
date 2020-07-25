@@ -3,8 +3,9 @@ from random import randint
 import time as t
 from random import randint
 from panda import Panda
+import struct 
 
-UPDATE_FREQUINCY = 10 #hz
+UPDATE_FREQUINCY = 8 #hz
 
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
@@ -43,7 +44,7 @@ class output(object):
         self.window.stopScrollPane()
         
     def set(self, value):
-        self.window.setLabel('l' + self.name, f'{formatBits(value, self.fmt):x}')  #remove formmatting remporarly
+        self.window.setLabel('l' + self.name, f'{formatBits(value, self.fmt)}')  #remove formmatting remporarly
         #self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
         
 def new():
@@ -54,7 +55,9 @@ def new():
 
 
 def distrobuteData(dataBuffer):
-    for MID, _, data, bus in dataBuffer:
+    for xMID, _, xdata, bus in dataBuffer:
+        MID = xMID
+        data = struct.unpack('>Q', xdata)[0]
         for d in outputs: #Data Distrobution betwean the output lines
             if d.mid == MID:
                 d.set(data)
@@ -63,7 +66,9 @@ def connectPanda():
     p.showSubWindow("con")
     t.sleep(2)
     try:
+        global dev
         dev = Panda()
+        p.thread(runCan) 
     except:
         p.setLabel("ConnectStatus", "FAILED! Trying to connect to panda over Wifi")      
         try:
@@ -75,7 +80,7 @@ def connectPanda():
             t.sleep(3)
             p.thread(simulater) 
             #app.stop()
-            #sys.exit(0)
+            #sys.exit(0)    
     p.destroySubWindow('con')
                    
     
@@ -90,7 +95,7 @@ def simulater():
         start = t.time()
         buffer = []
         for o in range(1000):
-            buffer.append((ids[randint(0, 1)], None, (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff), 8)) #get data
+            buffer.append(([randint(0, 1)], None, (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff), 8)) #get data
         p.queueFunction(distrobuteData(buffer))
         t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))     
         

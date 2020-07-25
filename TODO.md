@@ -22,6 +22,7 @@
  - frame frequency counter
    - Issues
     - Meters update slowley and cause preformance isuess
+    - Panda keeps filling up update queue buffer
 
 ##### DataInfo class
  - complete testing
