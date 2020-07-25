@@ -40,12 +40,12 @@ class output(object):
         self.window.stopScrollPane()
         
     def set(self, value):
-        self.window.setLabel('l' + self.name, f'{value:016x}')
+        self.window.setLabel('l' + self.name, f'{value}')  #remove formmatting remporarly
         #self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
         
 def new():
     name = p.getEntry('name')
-    mid = p.getEntry('mid')
+    mid = int(p.getEntry('mid'), 16)
     fmt = p.getEntry('fmt')
     outputs.append(output(p,name, mid, fmt))
 
@@ -53,13 +53,15 @@ def new():
 def distrobuteData(dataBuffer):
     for i in dataBuffer:
         for d in outputs: #Data Distrobution betwean the output lines
-            d.set(i)       
+            if d.mid == i[0]:
+                d.set(i[1])       
         
 def simulater():
+    ids = [0x120, 0x0e10]
     while 1:
         sleep(1)
         buffer = []
-        buffer.append((randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff)) #get data
+        buffer.append((ids[randint(0, 1)], (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff))) #get data
         
         p.queueFunction(distrobuteData(buffer))
         
@@ -70,7 +72,6 @@ p = gui("values")
 
 p.setSticky("nesw")
 p.setStretch("row")
-
 
 p.startScrollPane("left", row=0, column=0, disabled="horizontal")
 
