@@ -3,6 +3,13 @@ from random import randint
 from time import sleep
 from random import randint
 
+def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
+    
+    start,size,*mod = fmt.split(':')
+    if fmt == '':
+        return num	
+    return num>>int(start) & int(''.rjust(int(size), '1'),2)
+
 class output(object):
     def __init__(self, window: gui, name, canid = 0, fmt = '0|0:64'):
         self.window = window
