@@ -97,9 +97,9 @@ def simulater():
 def runCan():
     while 1:
 
-        start = t.time()        
-        can_recv = p.can_recv()
-        p.queueFunction(distrobuteData(buffer))
+        start = t.time()
+        can_recv = dev.can_recv()
+        p.queueFunction(distrobuteData(can_recv))
         t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))          
         
 
