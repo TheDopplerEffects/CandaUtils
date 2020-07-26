@@ -1,22 +1,50 @@
 from appJar import gui
 from random import randint
 import time as t
-from random import randint
 from panda import Panda
 import struct 
 
 UPDATE_FREQUINCY = 30 #hz
 
-def can_recv(self, addresses = None): #modified to work with filter can buffer
-    dat = bytearray()
-    while True:
-        try:
-            dat = self._handle.bulkRead(1, 0x10 * 256)
-            break
-        except (usb1.USBErrorIO, usb1.USBErrorOverflow):
-            print("CAN: BAD RECV, RETRYING")
-            time.sleep(0.1)
-    return parse_can_buffer(dat, addresses)    
+class PandaPlus(Panda):
+    def __init__(self, serial=None):
+        self._serial = serial
+        self._handle = None
+    
+    def connect(self, serial=None, claim=True):
+        self._serial = serial
+        self._handle = None
+        super().connect(claim)    
+        
+    def can_recv(self, addresses = None): #modified to work with filter can buffer
+        dat = bytearray()
+        while True:
+            try:
+                dat = self._handle.bulkRead(1, 0x10 * 256)
+                break
+            except (usb1.USBErrorIO, usb1.USBErrorOverflow):
+                print("CAN: BAD RECV, RETRYING")
+                t.sleep(0.1)
+        return parse_can_buffer(dat, addresses)
+    
+    def parse_can_buffer(dat, addresses = None):
+        ret = []
+        for j in range(0, len(dat), 0x10):
+            ddat = dat[j:j + 0x10]
+            f1, f2 = struct.unpack("II", ddat[0:8])
+            extended = 4
+            if f1 & extended:
+                address = f1 >> 3
+            else:
+                address = f1 >> 21
+            if address in addresses or addresses is None:
+                dddat = ddat[8:8 + (f2 & 0xF)]
+                if DEBUG:
+                    print(f"  R 0x{address:x}: 0x{dddat.hex()}")
+                ret.append((address, f2 >> 16, dddat, (f2 >> 4) & 0xFF))
+        return ret
+
+
 
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
@@ -80,8 +108,8 @@ def connectPanda():
     p.showSubWindow("con")
     t.sleep(2)
     try:
-        global dev
-        dev = Panda()
+        #global dev
+        dev,connect()
         p.thread(runCan) 
     except:
         p.setLabel("ConnectStatus", "FAILED! Trying to connect to panda over Wifi")      
@@ -109,6 +137,7 @@ def simulater():
         start = t.time()
         buffer = [(ids[randint(0, 1)], None, struct.pack('>Q',randint(0,0xffffffffffffffff)), 8) for o in range(8000//UPDATE_FREQUINCY)] #get data
         p.queueFunction(distrobuteData, buffer)
+        print(int(p.eventQueue.qsize))
         ts = max((1/UPDATE_FREQUINCY)-(t.time() - start), 0)
         t.sleep(ts)     
         
@@ -175,7 +204,7 @@ p.addLabel("ConnectStatus", "Connecting: USB")
 p.stopSubWindow()   
 
 #p.thread(simulater)
-
+dev = PandaPlus()
 p.setStartFunction(connectPanda)
 p.go()
 
