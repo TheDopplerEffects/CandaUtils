@@ -5,14 +5,14 @@ from random import randint
 from panda import Panda
 import struct 
 
-UPDATE_FREQUINCY = 8 #hz
+UPDATE_FREQUINCY = 30 #hz
 
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
     start,size,*mod = fmt.split(':')
     if fmt == '':
         return num	
-    return num>>int(start) & int(''.rjust(int(size), '1'),2)
+    return (num>>int(start)) & ((1 << int(size)) - 1)
 
 class output(object):
     def __init__(self, window: gui, name, canid = 0, fmt = '0|0:64'):
@@ -20,7 +20,6 @@ class output(object):
         self.name = name
         self.mid = canid
         self.fmt = fmt
-        
 
         self.window.openScrollPane('left')
         
@@ -55,12 +54,16 @@ def new():
 
 
 def distrobuteData(dataBuffer):
-    for xMID, _, xdata, bus in dataBuffer:
-        MID = xMID
+
+    start = t.time()    
+    while len(dataBuffer):
+        MID, _, xdata, bus = dataBuffer.pop()
         data = struct.unpack('>Q', xdata)[0]
         for d in outputs: #Data Distrobution betwean the output lines
             if d.mid == MID:
                 d.set(data)
+        
+    print(t.time() - start, end='\r')    
                 
 def connectPanda():
     p.showSubWindow("con")
@@ -93,20 +96,18 @@ def simulater():
     ids = [0x120, 0x0e10]
     while 1:
         start = t.time()
-        buffer = []
-        for o in range(1000):
-            buffer.append(([randint(0, 1)], None, (randint(0,0xffffffffffff)<<16)+ 0x8000 + randint(0,0x7fff), 8)) #get data
-        p.queueFunction(distrobuteData(buffer))
-        t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))     
+        buffer = [(ids[randint(0, 1)], None, struct.pack('>Q',randint(0,0xffffffffffffffff)), 8) for o in range(8000//UPDATE_FREQUINCY)] #get data
+        p.queueFunction(distrobuteData, buffer)
+        ts = max((1/UPDATE_FREQUINCY)-(t.time() - start), 0)
+        t.sleep(ts)     
         
 def runCan():
     while 1:
 
         start = t.time()
         can_recv = dev.can_recv()
-        p.queueFunction(distrobuteData(can_recv))
-        t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))          
-        
+        p.queueFunction(distrobuteData, can_recv)
+        t.sleep(max((1/UPDATE_FREQUINCY)-(t.time() - start), 0))
 
         
 
@@ -143,8 +144,16 @@ p.addLabelEntry("name", 0,0)
 p.addLabelEntry("mid", 0,1)
 p.addLabelEntry("fmt", 0,2)
 p.setEntry("name", 'Test')
+p.setEntry("mid", '10')
+p.setEntry("fmt", "0:15")
+new()
+p.setEntry("name", 'Tes')
+p.setEntry("mid", '10')
+p.setEntry("fmt", "16:15")
+new()
+p.setEntry("name", 'Ttgst')
 p.setEntry("mid", '0e1e')
-p.setEntry("fmt", "0:64")
+p.setEntry("fmt", "32:15")
 new()
 p.addButton("Make Value", new, 0,3)
 
