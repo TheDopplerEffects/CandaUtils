@@ -7,6 +7,17 @@ import struct
 
 UPDATE_FREQUINCY = 30 #hz
 
+def can_recv(self, addresses = None): #modified to work with filter can buffer
+    dat = bytearray()
+    while True:
+        try:
+            dat = self._handle.bulkRead(1, 0x10 * 256)
+            break
+        except (usb1.USBErrorIO, usb1.USBErrorOverflow):
+            print("CAN: BAD RECV, RETRYING")
+            time.sleep(0.1)
+    return parse_can_buffer(dat, addresses)    
+
 def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
     
     start,size,*mod = fmt.split(':')
