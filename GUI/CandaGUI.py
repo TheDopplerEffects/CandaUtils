@@ -58,19 +58,20 @@ class PandaPlus(Panda):
 
 
 
-def formatBits(num, fmt): #!!!!!!! replace this with a proper module in CandaUtils
+def formatBits(num, fmt, malt = 1): #!!!!!!! replace this with a proper module in CandaUtils
     
-    start,size,*mod = fmt.split(':')
+    start,size,mod = fmt.split(':')
     if fmt == '':
         return num	
-    return (num>>int(start)) & ((1 << int(size)) - 1)
+    return format(int(((num>>int(start)) & ((1 << int(size)) - 1)) * malt), mod)
 
 class output(object):
-    def __init__(self, window: gui, name, canid = 0, fmt = '0|0:64'):
+    def __init__(self, window: gui, name, canid = 0, fmt = '0:64:x', malt = 1):
         self.window = window
         self.name = name
         self.mid = canid
         self.fmt = fmt
+        self.maltiplyer = malt
 
         self.window.openScrollPane('left')
         
@@ -78,12 +79,13 @@ class output(object):
         
         self.window.addEntry('e' + self.name,row,0,0,1)
         self.window.setEntryWidth('e' + self.name, 8)
-        self.window.setEntry('e' + self.name,fmt)
+        self.window.setEntry('e' + self.name, fmt)
+        self.window.setEntrySubmitFunction('e' + self.name, self.updateFromat)
         
-        self.window.addMeter('m' + self.name,row,1,0,1)
-        self.window.setMeter('m' + self.name, 50)
-        self.window.setMeterFill('m' + self.name, "red")
-        self.window.setMeterWidth('m' + self.name, 200)
+        self.window.addEntry('em' + self.name, row, 1, 0, 1)
+        self.window.setEntryWidth('em' + self.name, 5)
+        self.window.setEntry('em' + self.name, malt)
+        self.window.setEntrySubmitFunction('em' + self.name, self.updateMalt)        
         
         self.lab = self.window.addLabel('l' + self.name, "0000000000000000",row,2,0,1)
         self.window.setLabelBg('l' + self.name, "white")
@@ -92,10 +94,14 @@ class output(object):
         self.window.getLabelWidget('l' + self.name).config(font=("Courier New", 13))        
         #Courier New
         self.window.stopScrollPane()
+    def updateFromat(self):
+        self.fmt = self.window.getEntry('e' + self.name)      
+    
+    def updateMalt(self):
+        self.maltiplyer = float(self.window.getEntry('em' + self.name))   
         
     def set(self, value):
-        self.lab.config(text=f'{formatBits(value, self.fmt)}')
-        #self.window.setMeter('m' + self.name, (value / 0xffffffffffffffff) * 100)
+        self.lab.config(text=formatBits(value, self.fmt, self.maltiplyer))
         
 def new():
     name = p.getEntry('name')
@@ -198,15 +204,15 @@ p.addLabelEntry("mid", 0,1)
 p.addLabelEntry("fmt", 0,2)
 p.setEntry("name", 'Test')
 p.setEntry("mid", '10')
-p.setEntry("fmt", "0:15")
+p.setEntry("fmt", "0:15:d")
 new()
 p.setEntry("name", 'Tes')
 p.setEntry("mid", '10')
-p.setEntry("fmt", "16:15")
+p.setEntry("fmt", "16:15:d")
 new()
 p.setEntry("name", 'Ttgst')
 p.setEntry("mid", '10')
-p.setEntry("fmt", "32:15")
+p.setEntry("fmt", "32:15:d")
 new()
 p.addButton("Make Value", new, 0,3)
 
