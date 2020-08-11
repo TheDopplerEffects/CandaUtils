@@ -1,16 +1,18 @@
-
+#!/usr/bin/env python3
 import matplotlib.pyplot as mpl # pylint3: disable=import-error
 import traceback as tb
 import sys
+import numpy as np
+import csv
+import math
 
-data = {}
+def listextend(ls, fksn, base):
+	return [fksn(i, base) for i in ls[:-1]] + [float(ls[4])] 
 
-def listextend(ls, fksn, par):
-	return [fksn(i, par) for i in ls]
 def QSNestedList(ls, sortIndex):
 	hi = []
 	lo = []
-	
+	#return sortIndex
 	if len(ls) > 0:
 		p = ls[0]
 		
@@ -21,13 +23,15 @@ def QSNestedList(ls, sortIndex):
 				lo.append(i)
 
 		return QSNestedList(hi, sortIndex) + [p] + QSNestedList(lo, sortIndex)
-	return []								
-def sortFrameTrees(tree):
+	return []			
+
+def sortByCommon(tree):
 	lsframe = [value for key, value in tree.items()]
 	
 	return QSNestedList(lsframe, 0)
+
 class Frame():
-	def __init__(self, bus = None, ID = None, data = None, length = None):
+	def __init__(self, bus = None, ID = None, data = None, length = None, time = None):
 		'''
 		
 		'''
@@ -35,6 +39,7 @@ class Frame():
 		self.message = data
 		self.busNum = bus
 		self.messageLength = length
+		self.messageTime = time
 		
 	def getMessageByte(self):
 		'''
@@ -43,10 +48,9 @@ class Frame():
 		return [hex(self.message>>i*8 & 0xff) for i in range(self.messageLength)]	
 	def getBins(self):
 		return [bin(self.message>>i*8 & 0xff)[2:].rjust(8,'0') for i in range(self.messageLength)][::-1]
-		
-	
 	def _print(self):	
 		pass
+	
 def formatBits(num, fmt):
 	'''
 	Formating:
@@ -67,33 +71,53 @@ def formatBits(num, fmt):
 	start,size,*mod = fmt.split(':')
 	if fmt == '':
 		return num	
-	return num>>int(start) & int(''.rjust(int(size), '1'),2)	
-def sortCan(f = 'output.csv'):
+	return num>>int(start) & int(''.rjust(int(size), '1'),2)
+
+def sortCan(fileName = 'output.csv'):
 	activeRank = []
-	with open(f, 'r') as f:
-		f.readline()
-		try:
-			while True:
-				line = listextend(f.readline().strip().split(','), int, 16)
-				
+	sortedCan  = {}
+	handle = False
+	
+	with open(fileName, 'r') as f:
+		print("[Reading Log]")
+		spamreader = csv.reader(f)
+		header = []
+		size = sum(1 for line in spamreader)
+		f.seek(0)
+		barpos = 0
+		print('[{:<20s}]'.format(''), end='\r')		
+		for pos, row in enumerate(spamreader):
+			if math.floor(pos/size*20) > barpos:
+				barpos += 1
+				print('[{:<20s}]'.format('-' * int(pos / size * 20)),end='\r')				
+			if handle:
+				line = listextend(row, int, 16)
 				try:
-					data[line[1]][1].append(Frame(line[0], line[1], line[2], line[3]))
-					data[line[1]][0] += 1
+					
+					sortedCan[line[1]][1].append(Frame(line[0], line[1], line[2], line[3], line[4] - StartTime))
+					sortedCan[line[1]][0] += 1
 					
 				except:
-					data[line[1]] = [1, [Frame(line[0], line[1], line[2], line[3])]]
-
-		except:
-			pass
+					StartTime = float(line[4])
+					sortedCan[line[1]] = [1, [Frame(line[0], line[1], line[2], line[3], 0)]]
+			else:
+				handle = True
+	print("[Done]                  ")
+				
+	return sortedCan
+		
 
 
 if __name__ == "__main__":
-	sortCan()
+	if len(sys.argv) > 1:
+		data = sortCan(sys.argv[1])
+	else:
+		data = sortCan()
 	
-	print(len(data))
+	print('Note: read {} unique Addresses'.format(len(data)))
 
-	freqent = sortFrameTrees(data)
-
+	print("[Sorting Data]")	
+	freqent = sortByCommon(data)
 	print("[Done]\n")
 	
 	print("""Commands:
@@ -129,8 +153,9 @@ if __name__ == "__main__":
 		
 		if inp[0] == 'top': #Top command
 			for i in freqent[int(inp[1])::-1]:
-				for l in i[1]:
-					print(('\t- 0x{:' + outFormat + '} {}bytes').format(l.message, l.messageLength))
+				if not 'i' in tags:
+					for l in i[1]:
+						print(('\t- 0x{:' + outFormat + '} {}bytes').format(l.message, l.messageLength))
 				print('\n{}x{}'.format(hex(i[1][0].messageID), i[0]))
 					
 		elif inp[0] == 'sift': #Sift command
@@ -153,28 +178,27 @@ if __name__ == "__main__":
 		elif inp[0] == 'graph': #Graph command
 			missing = ''
 			try:
-				if 1:
-					for i in inp[1:]:
-						MID, *fmt = i.split('|')
+				for i in inp[1:]:
+					MID, *fmt = i.split('|')
+					
+					for o in fmt:
+						vals = np.array([(l.messageTime, formatBits(l.message, o) )for l in data[int(MID,16)][1]])
 						
-						for o in fmt:
-							vals = [formatBits(l.message, o) for l in data[int(MID,16)][1]]
-							
-							mpl.title( ('0x{:' + IDFormat + '} ({})').format(int(MID, 16), o) )
-							mpl.plot(vals)
-							if 'c' not in tags:
-								mpl.show()
-								
-						if len(fmt) == 0:
-							vals = [l.message for l in data[int(MID,16)][1]]
-							
-							mpl.title(('0x{:' + IDFormat + '}').format(int(MID, 16)))
-							mpl.plot(vals)
-							if 'c' not in tags:
-								mpl.show()	
-						if 'c' in tags:
+						mpl.title( ('0x{:' + IDFormat + '} ({})').format(int(MID, 16), o) )
+						mpl.plot(vals[:,0], vals[:,1])
+						if 'c' not in tags:
 							mpl.show()
+							
+					if len(fmt) == 0:
+						vals = np.array([(l.messageTime, l.message  ) for l in data[int(MID,16)][1]])
 						
+						mpl.title(('0x{:' + IDFormat + '}').format(int(MID, 16)))
+						mpl.plot(vals[:,0], vals[:,1])
+						if 'c' not in tags:
+							mpl.show()	
+					if 'c' in tags:
+						mpl.show()
+					
 			except KeyError:
 				missing += ', ' + i 
 			except:					
