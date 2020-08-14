@@ -29,10 +29,12 @@
     <Compile Include="CandaUtils\test\DataInfo_test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="GUI\CandaGUI.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CandaUtils\" />
     <Folder Include="CandaUtils\test\" />
+    <Folder Include="GUI\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.7" />
@@ -40,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CandaUtils\test.dbc" />
+    <Content Include="TODO.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
