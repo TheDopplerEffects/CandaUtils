@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bf791122-3c74-4494-b495-24a096d58756</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CandaUtils\__init__.py</StartupFile>
+    <StartupFile>CandaUtils\DBCReader.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,24 +23,23 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CandaUtils\Canout.py" />
+    <Compile Include="CandaUtils\DBCReader.py" />
     <Compile Include="CandaUtils\__init__.py" />
-    <Compile Include="CandaGUI.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="test\DataInfo_test.py">
+    <Compile Include="CandaUtils\test\DataInfo_test.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CandaUtils\" />
-    <Folder Include="test\" />
+    <Folder Include="CandaUtils\test\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.7" />
     <InterpreterReference Include="Global|PythonCore|3.8" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TODO.txt" />
+    <Content Include="CandaUtils\test.dbc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
