@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bf791122-3c74-4494-b495-24a096d58756</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CandaUtils\DBCReader.py</StartupFile>
+    <StartupFile>GUI\CandaGUI.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
