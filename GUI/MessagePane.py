@@ -68,7 +68,6 @@ class SignalOut():
 
 
 def press(val):
-    messageName = ''
     messagedict['test2'] = messageWindow(p, 'test2', 110)
 
 def SelectMessageEvent():
