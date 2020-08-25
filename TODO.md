@@ -24,24 +24,24 @@
  - **panda connect startup screen**
  - ~~debug selection~~ **continue this**
  - interface (probably decide on how that looks idono)
-  - 8x8 binary square of the data of the selected id
-  - list of massages with a sublist of its signals
-  - message selection expands/opens on a frame for editing and monipulating messages
-  - Bar at top for most functions ex: add message, add signal, output styles 
-   - find a icon pack
+   - 8x8 binary square of the data of the selected id
+   - list of massages with a sublist of its signals
+   - message selection expands/opens on a frame for editing and monipulating messages
+   - Bar at top for most functions ex: add message, add signal, output styles 
+     - find a icon pack
  - **implement DBC reading and formatting with DBC_reader**
  - malti bus support?
  - (may not be needed delay)maltiprocessing to replace thread
  - bit/nyb/byte/2byte delta indication (with sensativity)
  - ~~convert value display to be frequincy locked and write every output once per update~~
-  - (may not be needed delay)make a buffer/lock to allow removing of massages missed by the main display loop. This may leave the message retrieving process open for logging?
+   - (may not be needed delay)make a buffer/lock to allow removing of massages missed by the main display loop. This may leave the message retrieving process open for logging?
  - frame frequency counter
  - (delay wait will external logger is finished)can logging
 
  - Issues
-  - Meters update slowly and cause preformance issues
-  - Connecting to panda prevents updating subwindow connection status Fix: send Connection to a thread
-  - ~~Panda keeps filling up update queue buffer~~ remove queue all together but this is a quick fix and probably error prone 
+   - Meters update slowly and cause preformance issues
+   - Connecting to panda prevents updating subwindow connection status Fix: send Connection to a thread
+   - ~~Panda keeps filling up update queue buffer~~ remove queue all together but this is a quick fix and probably error prone 
 
 ##### ~~DataInfo class~~ Depricating
 
@@ -49,9 +49,9 @@
 ### replace DataInfo with DBC_Reader
  - ~~DBC file parser~~
  - ~~signal class containing signal~~ info and decoder
-  - **add abuility to change endian order**
-  - **add sigh change**
-  - add function binding to decode
-   - 'singal.bind( func )' to bind a function and 'signal.execute(missageData)'
-  - think about better names
+   - **add abuility to change endian order**
+   - **add sigh change**
+   - add function binding to decode
+     - 'singal.bind( func )' to bind a function and 'signal.execute(missageData)'
+   - think about better names
  - ~~Message class containing message name and size + decoder~~ 
