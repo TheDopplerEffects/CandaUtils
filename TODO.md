@@ -2,7 +2,7 @@
 - work on the CandaGUI interface. This may help decide on many other structure decitions threwout the project.
 - **convert this to trello?**
 - readme?
-- analysis routines?
+- analysis routines? int/bool detection? update int/bool information with new data?
 - better logger
 - USE PYLINT!!!
 - **dockstrings!!!!**
@@ -27,13 +27,14 @@
   - 8x8 binary square of the data of the selected id
  - **implement DBC reading and formatting with DBC_reader**
  - malti bus support?
- - maltiprocessing to replace thread
+ - (may not be needed)maltiprocessing to replace thread
  - bit/nyb/byte/2byte delta indication (with sensativity)
  - convert value display to be frequincy locked and write every output once per update
   - make a buffer/lock to allow removing of massages missed by the main display loop. This may leave the message retrieving process open for logging?
  - frame frequency counter
    - Issues
     - Meters update slowly and cause preformance issues
+    - Connecting to panda prevents updating subwindow connection status Fix: send Connection to a thread
     - ~~Panda keeps filling up update queue buffer~~ remove queue all together but this is a quick fix and probably error prone 
  - can Logging
 
