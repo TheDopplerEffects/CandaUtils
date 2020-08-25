@@ -1,14 +1,13 @@
 from appJar import gui
 from random import randint
-import time as t
-#from panda import Panda
+import time
+from panda import Panda
+import sys
 import struct 
 
-DEBUG = 0
+DEBUG = False
+DEBUG_WITH_SIM = True
 UPDATE_FREQUINCY = 10 #hz
-
-
-
 
 #inject custom methods to panda
 def parse_can_bufferNEW(dat, addresses = None):
@@ -34,7 +33,7 @@ def parse_can_bufferNEW(dat, addresses = None):
             ret.append((address, f2 >> 16, dddat, (f2 >> 4) & 0xFF))            
     return ret
 parse_can_buffer = parse_can_bufferNEW
-'''class PandaPlus(Panda):
+class PandaPlus(Panda):
     def __init__(self, serial=None):
         self._serial = serial
         self._handle = None
@@ -52,9 +51,8 @@ parse_can_buffer = parse_can_bufferNEW
                 break
             except (usb1.USBErrorIO, usb1.USBErrorOverflow):
                 print("CAN: BAD RECV, RETRYING")
-                t.sleep(0.1)
-        return parse_can_buffer(dat, addresses)'''
-
+                time.sleep(0.1)
+        return parse_can_buffer(dat, addresses)
 
 
 def formatBits(num, fmt, malt = 1): #!!!!!!! replace this with a proper module in CandaUtils
@@ -65,70 +63,10 @@ def formatBits(num, fmt, malt = 1): #!!!!!!! replace this with a proper module i
     return format(int(((num>>int(start)) & ((1 << int(size)) - 1)) * malt), mod)
 
 
-
-#class output(object):
-#    def __init__(self, window: gui, name, canid = 0, fmt = '0:64:x', malt = 1):
-#        self.window = window
-#        self.name = name
-#        self.mid = canid
-#        self.fmt = fmt
-#        self.maltiplyer = malt
-
-#        self.window.openFrame('try')
-        
-#        row = self.window.gr()
-        
-#        self.window.addEntry('e' + self.name,row,0,0,1)
-#        self.window.setEntryWidth('e' + self.name, 8)
-#        self.window.setEntry('e' + self.name, fmt)
-#        self.window.setEntrySubmitFunction('e' + self.name, self.updateFromat)
-        
-#        self.window.addEntry('em' + self.name, row, 1, 0, 1)
-#        self.window.setEntryWidth('em' + self.name, 5)
-#        self.window.setEntry('em' + self.name, malt)
-#        self.window.setEntrySubmitFunction('em' + self.name, self.updateMalt)        
-         
-#        self.lab = self.window.addLabel('l' + self.name, "0000000000000000",row,2,0,1)
-#        self.window.setLabelBg('l' + self.name, "white")
-#        self.window.setLabelAlign('l' + self.name, "right")
-#        self.window.setLabelWidth('l' + self.name, 16)
-#        self.window.getLabelWidget('l' + self.name).config(font=("Courier New", 13))        
-#        #Courier New
-#        self.window.stopFrame()
-#    def updateFromat(self):
-#        self.fmt = self.window.getEntry('e' + self.name)      
-    
-#    def updateMalt(self):
-#        self.maltiplyer = float(self.window.getEntry('em' + self.name))   
-        
-#    def set(self, value):
-#        self.lab.config(text=formatBits(value, self.fmt, self.maltiplyer))
-        
-#class messageWindow():
-#    def __init__(self, window: gui, name, address, ):
-#        self.window = window
-#        self.name = name
-#        self.address = address
-
-#        self.window.openScrollPane('left')
-#        row = self.window.gr()
-
-#        self.window.addEntry('e' + self.name, row,0,0,1)
-#        self.window.setEntry('e' + self.name, name)
-
-#        self.window.addEntry('e2' + self.name, row,1,0,1)
-#        self.window.setEntry('e2' + self.name, address)
-
-#        self.window.startFrame("try"+ self.name, row=row+1, column=0, colspan=2)
-#        self.window.addLabel('lg'+ self.name, 'this is the first entry')
-#        self.window.stopFrame()
-#        self.window.stopScrollPane()
-
-
 #message window output
 currentMessage = None #global stores active message window
-messagedict = {} #global stores list of message windows
-
+messageByMID = {} #global stores list of message windows
+messageByName = {}
 class messageWindow():
     def __init__(self, window: gui, name:str, address:int, ):
         self.window = window
@@ -149,7 +87,8 @@ class messageWindow():
 
         #Message value
         self.messageValueLabel = self.window.addLabel('Value' + self.name, "FFFFFFFFFFFFFFFF",nextRow,2,)
-
+        self.window.getLabelWidget('Value' + self.name).config(font=("Courier New", 13))
+        
         #Signals frame
         self.window.setPadding((20,0))
         self.window.startFrame("SigFrame"+self.name, row=nextRow+1, column=0, colspan=4)
@@ -161,7 +100,7 @@ class messageWindow():
         self.window.stopScrollPane()
 
     def set(self, value):
-        self.messageValueLabel.config(text=str(value))
+        self.messageValueLabel.config(text=f'{value:016x}')
         for i in self.signals.values():
             i.set(value)
 
@@ -185,86 +124,108 @@ class SignalOut():
         self.window.getLabelWidget('signalValue' + self.id).config(font=("Courier New", 13))  
         
     def set(self, value):
-        self.SignalValueLabel.config(text=str(value))
+        self.SignalValueLabel.config(text=f'{value:016x}')
 
 
 #Event functions for creating new messages and signals
 def new():
     name = p.getEntry('name')
-    currentMessage.addSignal(name)
-#    focusMIDs.add(int(mid))
-#    outputs.append(output(p, name, mid, fmt))
+    if name in currentMessage.signals:
+        p.bell()        
+    else:
+        currentMessage.addSignal(name)
 def mnew():
     mname = p.getEntry('mname')
     mmid = int(p.getEntry('mmid'), 16)
-    messagedict[mmid] = messageWindow(p, mname, mmid)
-#    outputs.append(messageWindow(p, mname, mmid))
+    if mmid in messageByMID or mname in messageByName:
+        p.bell()
+    else:
+        temp = messageWindow(p, mname, mmid)
+        messageByName[mname] = temp
+        messageByMID[mmid] = temp
                 
 
 #Manage Connecting to panda via Wifi or usb or run simulator
 # Handles running the can input loop thread
 def connectPanda():
-    p.showSubWindow("con")
-    t.sleep(2)
-    try:
-        #global dev
-        dev.start()
-        p.thread(runCan) 
-    except:
-        p.setLabel("ConnectStatus", "FAILED! Trying to connect to panda over Wifi")      
-        print("FAILED! Trying to connect to panda over Wifi")      
-                
+    if not DEBUG_WITH_SIM:      
         try:
-            print('Trying panda')
-            assert False  #!!!!!!!!!!!!!panda wifi donsn't timout
-            #dev = Panda("WIFI")
-        except:
-            p.setLabel("ConnectStatus", "Connection timed out!\nClosing in 3 seconds")
-            t.sleep(3)
-            p.thread(simulater) 
-            #app.stop()
-            #sys.exit(0)    
-    p.destroySubWindow('con')
+            global dev
+            dev.start()
+            p.thread(runCan)
+            p.destroySubWindow('Connect')
+        except AssertionError: #Panda usb connection error is presented as a assert and isn't descriptive
+            p.setLabel("ConnectStatus", "FAILED!\nTrying to connect to panda over Wifi")      
+            if DEBUG: print("FAILED! Trying to connect to panda over Wifi")      
+            try:
+                if DEBUG: print('Trying panda')
+                raise  #!!!!!!!!!!!!!panda wifi donsn't timout
+                dev.start("WIFI")
+                p.destroySubWindow('Connect')
+                p.thread(runCan)
+            except:
+                p.setLabel("ConnectStatus", "Unable to find Panda!\nClosing in 3 seconds")
+                time.sleep(3)
+                p.stop()
+    else:
+        p.destroySubWindow('Connect')
+        p.setTitle('Canda ( SIMULATOR MODE )')
+        p.thread(simulater)
+        p.show()        
+    
 
+#Used as a way to update the data output in the main loop
+def updateWithMessage(msgData):
+    global messageByMID
+    for MID, xdata, bus in msgData:
+        if MID in messageByMID:
+            data = struct.unpack('>Q', xdata)[0]
+            messageByMID[MID].set(data)
+        
 
 #dictates what to do with the can message buffer
 def processBuffer(buf):
-    global messagedict
-    for MID, _, xdata, bus in buf:
-        if MID in messagedict:
-            data = struct.unpack('>Q', xdata)[0]
-            messagedict[MID].set(data)  
-                    
+    usedMIDs = set()
+    outputData = []
+    for MID, _, xdata, bus in reversed(buf):
+        if MID not in usedMIDs:
+            usedMIDs.add(MID)
+            outputData.append([MID, xdata, bus])
+    p.queueFunction(updateWithMessage, outputData)
+            
+                        
 #threds that loop and get the can message data
 def simulater():
     ids = [0x120, 0x0e10]
     while 1:
-        start = t.time()
+        start = time.time()
         buffer = [(ids[randint(0, 1)], None, struct.pack('>Q',randint(0,0xffffffffffffffff)), 8) for o in range(8000//UPDATE_FREQUINCY)] #get data
         processBuffer(buffer) 
-        dTime = t.time() - start
+        dTime = time.time() - start
         print(dTime, end='\r')
-        t.sleep(max((1/UPDATE_FREQUINCY)-(dTime), 0))        
+        time.sleep(max((1/UPDATE_FREQUINCY)-(dTime), 0))        
 def runCan():
     while 1:
-        start = t.time()
+        start = time.time()
         can_recv = dev.can_recv()#focusMIDs)
         processBuffer(can_recv)
-        dTime = t.time() - start
+        dTime = time.time() - start
         print(dTime, end='\r')
-        t.sleep(max((1/UPDATE_FREQUINCY)-(dTime), 0))
+        time.sleep(max((1/UPDATE_FREQUINCY)-(dTime), 0))
 
 
 #event to change the selected message window
 def SelectMessageEvent():
     global currentMessage
+    global messageByName
     b = p.getRadioButton('messageSelect')
-    currentMessage = messagedict[b]
+    currentMessage = messageByName[b]
 
 
         
 
-p = gui("values")
+
+p = gui("Canda")
 
 p.setSticky("nesw")
 p.setStretch("row")
@@ -280,19 +241,12 @@ p.setStretch("none")
 p.addLabel('FM', "Message Name",0,0)
 p.addLabel('ME', "MID",0,1)
 p.addLabel('OT', "Value",0,2)
-
-#p.setSticky("enw")
-#p.setBg("white")
-#p.setStretch("none")
-
-#p.addLabel('FM', "Format",0,0)
-#p.addLabel('ME', "Meter",0,1)
-#p.addLabel('OT', "Value",0,2)
+p.setLabelWidth('OT', 16)
 
 p.stopScrollPane()
 
 currentMessage = messageWindow(p, 'test', 0x120)
-messagedict[currentMessage.address] = currentMessage
+messageByMID[currentMessage.address] = currentMessage
 
 
 #bit array output----------------------------------------------
@@ -332,20 +286,22 @@ p.addLabelEntry("mname", 0,0)
 p.addLabelEntry("mmid", 0,1)
 p.setEntry("mname", 'Test')
 p.setEntry("mmid", '120')
-p.addButton("mMake Value", new, 0,2)
+p.addButton("mMake Value", mnew, 0,2)
 
 p.stopFrame()
 
 
 #Start-----------------------------------------------------
 
-p.startSubWindow("con")
-p.addLabel("ConnectStatus", "Connecting: USB") 
-p.stopSubWindow()   
+dev = PandaPlus()
 
-#p.thread(simulater)
-#dev = PandaPlus()
+p.startSubWindow("Connect")
+p.setPadding((10,10))
+p.setStretch("none")    
+p.addLabel("ConnectStatus", "Connecting to USB\n ",0,0,0,0) 
+p.stopSubWindow()
+
 p.setStartFunction(connectPanda)
-p.go()
+p.go(startWindow='Connect')
 
 
