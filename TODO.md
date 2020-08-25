@@ -28,7 +28,8 @@
    - list of massages with a sublist of its signals
    - message selection expands/opens on a frame for editing and monipulating messages
    - Bar at top for most functions ex: add message, add signal, output styles 
-     - find a icon pack
+     - ~~find a icon pack~~ (attribute Author!!!!!)
+     	-<div>Icons made by <a href="https://www.flaticon.com/authors/kiranshastry" title="Kiranshastry">Kiranshastry</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
  - **implement DBC reading and formatting with DBC_reader**
  - malti bus support?
  - (may not be needed delay)maltiprocessing to replace thread
