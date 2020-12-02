@@ -5,12 +5,12 @@
 - routines for automating information detection? int/bool detection? update int/bool information with new data?
 - better logger
 - USE PYLINT!!!
-- **dockstrings!!!!**
+- dockstrings!!!!
 
 ##### Canout:
  - rename
  - **implement DBC_reader**
- - ~~implement time reading on logger and Canout~~
+ - implement time reading on logger and Canout
  - message frequency counter
 
 ##### Panda module:
@@ -19,10 +19,19 @@
    - **might wana throw some doc strings in there maybe officaly**
  - ~~allow message filtering at a lower level in the panda function~~ Done
 
+##### PyQt5 GUI Refactor:
+ - designe the GUI implementation
+ - Message list widget
+ - workspace widget
+ - alternate data view widget
+ - toolbar buttons
+ - file, edit view etc
+
 ##### CandaGUI:
  - **!!!!!!!!!!!BETTER FUCKING NAMES AND IDS!!!!!!!!!**
- - **panda connect startup screen**
- - AppJar SUCKS when it comes to syle options. this Is probably a good time to use a alternate GUI package ima go with Qt
+ - panda connect startup screen
+ - support for other readers
+ - **AppJar SUCKS when it comes to syle options. this Is probably a good time to use a alternate GUI package ima go with Qt**
  - ~~debug selection~~ **continue this**
  - interface (probably decide on how that looks idono)
    - 8x8 binary square of the data of the selected id
@@ -30,7 +39,7 @@
    - message selection expands/opens on a frame for editing and monipulating messages
    - Bar at top for most functions ex: add message, add signal, output styles 
      - ~~find a icon pack~~ (attribute Author!!!!!)
-     	- <div>Icons made by <a href="https://www.flaticon.com/authors/kiranshastry" title="Kiranshastry">Kiranshastry</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+       - <div>Icons made by <a href="https://www.flaticon.com/authors/kiranshastry" title="Kiranshastry">Kiranshastry</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
  - **implement DBC reading and formatting with DBC_reader**
  - malti bus support?
  - (may not be needed delay)maltiprocessing to replace thread
@@ -41,7 +50,7 @@
  - (delay wait will external logger is finished)can logging
 
  - Issues
-   - Meters update slowly and cause preformance issues
+   - ~~Meters update slowly and cause preformance issues~~ fixing with PyQt
    - Connecting to panda prevents updating subwindow connection status Fix: send Connection to a thread
    - ~~Panda keeps filling up update queue buffer~~ remove queue all together but this is a quick fix and probably error prone 
 
