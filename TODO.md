@@ -22,6 +22,7 @@
 ##### CandaGUI:
  - **!!!!!!!!!!!BETTER FUCKING NAMES AND IDS!!!!!!!!!**
  - **panda connect startup screen**
+ - AppJar SUCKS when it comes to syle options. this Is probably a good time to use a alternate GUI package ima go with Qt
  - ~~debug selection~~ **continue this**
  - interface (probably decide on how that looks idono)
    - 8x8 binary square of the data of the selected id
@@ -29,7 +30,7 @@
    - message selection expands/opens on a frame for editing and monipulating messages
    - Bar at top for most functions ex: add message, add signal, output styles 
      - ~~find a icon pack~~ (attribute Author!!!!!)
-     	-<div>Icons made by <a href="https://www.flaticon.com/authors/kiranshastry" title="Kiranshastry">Kiranshastry</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+     	- <div>Icons made by <a href="https://www.flaticon.com/authors/kiranshastry" title="Kiranshastry">Kiranshastry</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
  - **implement DBC reading and formatting with DBC_reader**
  - malti bus support?
  - (may not be needed delay)maltiprocessing to replace thread
