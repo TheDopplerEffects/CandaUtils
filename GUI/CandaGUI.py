@@ -314,10 +314,6 @@ p.startSubWindow("Connect")
 p.setPadding((10, 10))
 p.setStretch("none")
 p.addLabel("ConnectStatus", "Connecting to USB\n ", 0, 0, 0, 0)
-p.stopSubWindow()
-
-p.addToolbar(tools, tbFunc, findIcon=True)
-p.setStartFunction(connectPanda)
-p.go(startWindow='Connect')
-
-
+p.stopSubWindow() p.addToolbar(tools, tbFunc, findIcon=True) 
+p.setStartFunction(connectPanda) 
+p.go(startWindow='Connect') 
