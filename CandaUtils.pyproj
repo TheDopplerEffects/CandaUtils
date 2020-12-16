@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bf791122-3c74-4494-b495-24a096d58756</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>GUI\CandaGUI.py</StartupFile>
+    <StartupFile>GUI\CandaGUIQt.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -30,9 +30,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GUI\CandaGUI.py" />
-    <Compile Include="GUI\MessagePane.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="GUI\CandaGUIQt.py" />
+    <Compile Include="GUI\CandaProcess.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CandaUtils\" />
@@ -45,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CandaUtils\test.dbc" />
-    <Content Include="TODO.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
