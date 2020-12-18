@@ -113,7 +113,6 @@ class MessageListWidget(QScrollArea):
 			self.MID = MID
 			self.labelFunc = labelFunc
 		def update(self, subject: Observer.ValueUpdateSubject):
-			print(subject._data)
 			if self.MID in subject._data:
 				self.labelFunc(subject._data[self.MID])
 

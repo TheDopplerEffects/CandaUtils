@@ -11,16 +11,13 @@ from random import randint
 
 if __name__ == "__main__":
 	#start Process
-	manager = multiprocessing.Manager()
-	data = manager.dict()
-	lock = manager.Lock()
-	process = multiprocessing.Process(target=CandaProcess.updateLoop, args=[data, lock])
+	process = CandaProcess.ComProcess()
 	process.start()
 
 	#Start Qt and add subject to window
 	app = QApplication(sys.argv)
 	window = CandaGUIQt.MainWindow()
-	subject = Observer.ValueUpdateSubject(data, lock)
+	subject = Observer.ValueUpdateSubject(process.getData(), process.getLock())
 	window.messageListWidget.setSubject(subject)
 	window.show()
 
