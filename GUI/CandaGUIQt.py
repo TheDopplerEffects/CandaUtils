@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from random import randint
+import Observer
 
 
 
@@ -82,7 +83,8 @@ class SignalWidget(QWidget):
 
 
 class MessageWidget(QWidget):
-	def __init__(self, name='New Message'):
+				
+	def __init__(self, name='New Message', MID=0): #-----------------MID not implemented
 		super(MessageWidget, self).__init__()
 		self.signals = {}
 		self.name = QLabel(name)
@@ -92,49 +94,53 @@ class MessageWidget(QWidget):
 		self.setLayout(self.mainLayout)
 
 	def addSignal(self, name="Message Label", number=0):
-
 		signalWidget = SignalWidget(name, number)
 		self.mainLayout.addWidget(signalWidget)
 		self.signals[name] = signalWidget
 		return signalWidget
 
 	def removeSignal(self, name):
-		sig = self.signals[name]
-		self.mainLayout.remove()
-		QWidget.remo
+		pass
 
 	def distributeSignals(self, value):
 		for i in self.signals:
-			self.signals[i].setValue(value)
+			self.signals[i].setValue(value) # I think i can do this faster
 
 
-class MessageListWidget(QWidget):
+class MessageListWidget(QScrollArea):
+	class MessageObserver(Observer.Observer):
+		def __init__(self, labelFunc, MID):
+			self.MID = MID
+			self.labelFunc = labelFunc
+		def update(self, subject: Observer.ValueUpdateSubject):
+			print(subject._data)
+			if self.MID in subject._data:
+				self.labelFunc(subject._data[self.MID])
+
 	def __init__(self, *args, **kwargs):
 		super(MessageListWidget, self).__init__(*args, **kwargs)
 
 		self.messageLayoutBox = QVBoxLayout()
 		self.messageLayoutBox.setAlignment(Qt.AlignTop)
 		self.messages = dict()
+		self.__subject = None
 
-		lw = QWidget()
-		lw.setLayout(self.messageLayoutBox)
+		containerWidget = QWidget() 
+		containerWidget.setLayout(self.messageLayoutBox)
 
-		sw = QScrollArea()
 		# sw.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-		sw.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-		sw.setWidgetResizable(True)
-		sw.setWidget(lw)
+		self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+		self.setWidgetResizable(True)
+		self.setWidget(containerWidget)
 
-		vLayout = QVBoxLayout()
-		vLayout.addWidget(sw)
-		self.setLayout(vLayout)
-
-	def addMessage(self, name):
+	def addMessage(self, name, MID=0):
 		assert (name not in self.messages.keys()), f'{name}" already exists'
 		assert name.strip() != '', "massage name can't be nothing"
-		message = MessageWidget(name)
+		message = MessageWidget(name, MID)
 		self.messages[name] = message
 		self.messageLayoutBox.addWidget(message)
+		if self.__subject:
+			self.__subject.add(self.MessageObserver(message.distributeSignals, MID))
 		return message
 
 	def removeMessage(self, name):
@@ -147,9 +153,9 @@ class MessageListWidget(QWidget):
 		assert name.slice() != '', "massage name can't be nothing already exists"
 		return self.messages[name]
 
-	def distributeMessages(self, msgs):
-		for i in self.messages:
-			self.messages[i].distributeSignals(msgs)
+	def setSubject(self, subject):
+		self.__subject = subject
+
 
 
 class MainWindow(QMainWindow):
@@ -167,14 +173,10 @@ class MainWindow(QMainWindow):
 
 		centerZone = Color('blue')
 
-		self.messages = MessageListWidget()
-		for o in range(20):
-			item = self.messages.addMessage(str(randint(0, 10000000000)))
-			for o in range(5):
-				item.addSignal(str(randint(0, 10000000000)))
+		self.messageListWidget = MessageListWidget()
 
 		mainWidget = QSplitter(Qt.Horizontal)
-		mainWidget.addWidget(self.messages)
+		mainWidget.addWidget(self.messageListWidget)
 		mainWidget.addWidget(centerZone)
 		mainWidget.addWidget(rightZoneWidget)
 

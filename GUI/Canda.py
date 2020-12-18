@@ -1,32 +1,40 @@
 import sys
 import multiprocessing
-import CandaProcess
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import Observer
+import CandaProcess
 import CandaGUIQt 
+from random import randint
 
 
 if __name__ == "__main__":
-	app = QApplication(sys.argv)
-	window = CandaGUIQt.MainWindow()
-
+	#start Process
 	manager = multiprocessing.Manager()
-	data = manager.list([0, 0])
-	lock = multiprocessing.Lock()
+	data = manager.dict()
+	lock = manager.Lock()
 	process = multiprocessing.Process(target=CandaProcess.updateLoop, args=[data, lock])
 	process.start()
 
-	subject = ValueUpdateSubject(data, lock)
-	subject.add(window.messages.distributeMessages)
-	subject.update()
-
+	#Start Qt and add subject to window
+	app = QApplication(sys.argv)
+	window = CandaGUIQt.MainWindow()
+	subject = Observer.ValueUpdateSubject(data, lock)
+	window.messageListWidget.setSubject(subject)
 	window.show()
 
+	
+	for o in {0x1111, 0x6969, 0xff00}:
+		item = window.messageListWidget.addMessage(str(randint(0, 10000000000)), o)
+		for i in range(0,9):
+			item.addSignal(str(i))
+
+	#start update loop to update the labels
 	timer = QTimer()
 	timer.timeout.connect(subject.update)
-	timer.start(100)
+	timer.start(100) #ms
 
 	app.exec_()
 	process.kill()
-	sys.exit()
+	sys.exit(0)
