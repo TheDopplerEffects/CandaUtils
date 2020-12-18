@@ -58,9 +58,9 @@ class SquareBitArray(QWidget):
 				self.bits[o].append(newLabel)
 
 
-class SignalLabel(QWidget):
+class SignalWidget(QWidget):
 	def __init__(self, name="Message Label", number=0):
-		super(SignalLabel, self).__init__()
+		super(SignalWidget, self).__init__()
 
 		self.nameLabel = QLabel(str(name))
 		self.nameLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -93,7 +93,7 @@ class MessageWidget(QWidget):
 
 	def addSignal(self, name="Message Label", number=0):
 
-		signalWidget = SignalLabel(name, number)
+		signalWidget = SignalWidget(name, number)
 		self.mainLayout.addWidget(signalWidget)
 		self.signals[name] = signalWidget
 		return signalWidget

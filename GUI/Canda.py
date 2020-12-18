@@ -4,25 +4,7 @@ import CandaProcess
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import CandaGUIQt
-
-class ValueUpdateSubject():
-	def __init__(self, array, lock):
-		self.__funcs = list()
-		self.__array = array
-		self.__lock = lock
-	def add(self, func):
-		self.__funcs.append(func)
-
-	def remove(self, func):
-		self.__funcs.remove(func)
-
-	def update(self):
-		for i in self.__funcs:
-			self.__lock.acquire()
-			i(self.__array[1])
-			print(self.__array[1])
-			self.__lock.release()
+import CandaGUIQt 
 
 
 if __name__ == "__main__":
