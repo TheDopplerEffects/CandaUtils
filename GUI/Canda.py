@@ -18,14 +18,14 @@ if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	window = CandaGUIQt.MainWindow()
 	subject = Observer.ValueUpdateSubject(process.getData(), process.getLock())
-	window.messageListWidget.setSubject(subject)
+	window.setSubject(subject)
 	window.show()
 
 	
 	for o in {0x1111, 0x6969, 0xff00}:
-		item = window.messageListWidget.addMessage(str(randint(0, 10000000000)), o)
+		message = window.addMessage(str(randint(0, 10000000000)), o)
 		for i in range(0,9):
-			item.addSignal(str(i))
+			window.addSignal(message, i)
 
 	#start update loop to update the labels
 	timer = QTimer()
