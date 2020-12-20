@@ -159,10 +159,12 @@ class DBCDecoder():
             self._nodes = []
     def __getitem__(self, key):
         '''return the message object with the same message ID'''
-        if isinstance(MID, int):
-            return self._messages_byID[key]
-        else:
+        if isinstance(key, str):
+            assert key in self._messages_byName.keys(), 'Message name  ' + key + ' does not exist'
             return self._messages_byName[key]
+        else:
+            assert key in self._messages_byID.keys(), 'Message ID ' + str(key) + ' does not exist'
+            return self._messages_byID[key]
     def __iter__(self):
         '''return a list of all the messages in the DBC file'''
         return iter(self._messages_byName.values())
@@ -170,11 +172,17 @@ class DBCDecoder():
     def getMessages(self):
         '''returns a list of all the message objects'''
         return self._messages_byName.values()
-    def addMessage(self, message:MessageClass):
+    def add(self, message:MessageClass):
         assert message.massage_id not in self._messages_byID.keys(), 'Message ID already exists'
         assert message.message_name not in self._messages_byName.keys(), "Message name already exists"
         self._messages_byID[message.massage_id] = message   
-        self._messages_byName[message.message_name] = message   
+        self._messages_byName[message.message_name] = message
+    def remove(self, key):
+        item = self.__getitem__(key)
+        self._messages_byID.pop(item.massage_id)
+        self._messages_byName.pop(item.message_name)
+        
+
     def decode(self, MID:int, message:int) -> dict:
         '''
         returns finds the MID in the DBC file and returns its signal names as the key and the decode message as the value.
@@ -210,15 +218,8 @@ if __name__ == '__main__':
         print('\n')
 
     while 1:
-        try:
-            add = int(input('enter address:'))
-            msg = int(input('enter msg: '), 16)
-            try:
-                print(DBC[add])
-            except IndexError:
-                print(f"missing DBC with MID {add}")
-            print('out = {}'.format(DBC.decode(add, msg)))
-
-        except KeyboardInterrupt:
-            break
-    
+        DBC.remove("GEARBOX")
+        add = int(input('enter address:'))
+        msg = int(input('enter msg: '), 16)
+        print(DBC[add])
+        print('out = {}'.format(DBC.decode(add, msg)))    
