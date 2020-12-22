@@ -44,7 +44,7 @@ class SignalClass():
         self.multiplexer_indicator = multiplexer_indicator
         self.start_bit = start_bit
         self.signal_size = signal_size
-        self.byte_order = byte_order #0=little endian, 1=big endian----------------implement order 
+        self.byte_order = byte_order
         self.value_type = value_type #+=unsigned, -=signed-------------------------implement sign
         self.factor = factor
         self.offset = offset
@@ -70,13 +70,18 @@ class MessageClass():
         self.transmitter = transmitter
         self.__signals = {}
     def __getitem__(self, name):
+        if name not in self.__signals.keys(): raise KeyError('Signal name ' + name + ' does not exists')
         return self.__signals[name]
     def __iter__(self):
         return iter(self.__signals.values())
     def __str__(self):
         return '{} (MID:{} Transmitter:{} Size:{})'.format(self.message_name, self.massage_id, self.transmitter, self.message_size)
-    def addSignal(self, signal:SignalClass):
+    def add(self, signal:SignalClass):
+        if signal.signal_name in self.__signals.keys(): raise KeyError('Signal name ' + signal.signal_name + ' already exists')
         self.__signals[signal.signal_name] = signal
+    def remove(self, name):
+        if name not in self.__signals.keys(): raise KeyError('Signal name ' + name + ' does not exists')
+        self.__signals.pop(name)
     def decode(self, message:int):
         return {sigName :sig.decode(message, self.message_size) for sigName, sig in self.__signals.items()}
 class DBCDecoder():
@@ -111,7 +116,7 @@ class DBCDecoder():
         for i, item in enumerate(DBCObjects):
             if item[0] == 'BU_':
                 nodes = nodes.union(item[1:])
-                del(DBCObjects[i - 1]) #this may will cause bug for sequential BU_ 
+                del(DBCObjects[i - 1]) #this may well cause bug for sequential BU_ 
         return nodes
     def __deconstructBO(ls):
         return (int(ls[1]), ls[2][:-1], int(ls[3]), ls[4])
@@ -137,7 +142,6 @@ class DBCDecoder():
             self._nodes = DBCDecoder.__removeNodes(file)
             self._messages_byID = dict()
             self._messages_byName = dict()
-
             for msg in fileData:
                 print(msg)
                 if msg[0] == 'BO_':
@@ -147,7 +151,15 @@ class DBCDecoder():
                     self._messages_byName[lastMSG.message_name] = lastMSG
                 elif msg[0] == 'SG_':
                     sig = SignalClass(*DBCDecoder.__deconstructSG(msg))
-                    lastMSG.addSignal(sig)
+                    try:
+                        lastMSG.add(sig)
+                    except KeyError:
+                        n = sig.signal_name
+                        for i in range(64):
+                            try:
+                                sig.signal_name = n + str(i)
+                            except:
+                                continue
 
             for val in vals:
                 print(val)
@@ -160,21 +172,20 @@ class DBCDecoder():
     def __getitem__(self, key):
         '''return the message object with the same message ID'''
         if isinstance(key, str):
-            assert key in self._messages_byName.keys(), 'Message name  ' + key + ' does not exist'
+            if key not in self._messages_byName.keys(): raise KeyError("Message name " + key + " does not exists")
             return self._messages_byName[key]
         else:
-            assert key in self._messages_byID.keys(), 'Message ID ' + str(key) + ' does not exist'
+            if key not in self._messages_byID.keys(): raise KeyError('Message ID ' + str(key) + ' does not exists')
             return self._messages_byID[key]
     def __iter__(self):
         '''return a list of all the messages in the DBC file'''
         return iter(self._messages_byName.values())
-
     def getMessages(self):
         '''returns a list of all the message objects'''
         return self._messages_byName.values()
     def add(self, message:MessageClass):
-        assert message.massage_id not in self._messages_byID.keys(), 'Message ID already exists'
-        assert message.message_name not in self._messages_byName.keys(), "Message name already exists"
+        if message.massage_id in self._messages_byID.keys(): raise KeyError('Message ID ' + str(message.message_id) + 'already exists')
+        if message.message_name in self._messages_byName.keys(): raise KeyError("Message name " + message.message_name + "already exists")
         self._messages_byID[message.massage_id] = message   
         self._messages_byName[message.message_name] = message
     def remove(self, key):
@@ -202,7 +213,7 @@ if __name__ == '__main__':
         try:
             fileName = input("Please enter file name: ")
             if fileName == '':
-                fileName = 'CandaUtils/test.dbc'
+                fileName = 'test.dbc'
             with open(fileName, 'r') as f:
                 DBC = DBCDecoder(f)
         except IOError:
@@ -218,7 +229,6 @@ if __name__ == '__main__':
         print('\n')
 
     while 1:
-        DBC.remove("GEARBOX")
         add = int(input('enter address:'))
         msg = int(input('enter msg: '), 16)
         print(DBC[add])
